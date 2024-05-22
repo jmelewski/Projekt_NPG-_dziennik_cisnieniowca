@@ -8,6 +8,23 @@ import os
 FONT = ("Helvetica", 12)
 
 # Kolory
-BG_COLOR = "#f0f0f0"
-BUTTON_COLOR = "#ADD8E6"
-TEXT_COLOR = "#333333"
+BG_COLOR = "#fbaed2"
+BUTTON_COLOR = "#fe28a2"
+TEXT_COLOR = "#ffe4e1"
+
+class Dziennik_Cisnieniowca_Aplikacja:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Dziennik ciśnieniowca")
+        self.master.geometry("600x400")
+        self.master.config(bg=BG_COLOR)
+
+        self.main_frame = tk.Frame(self.master, bg=BG_COLOR)
+        self.main_frame.pack(expand=True)
+
+def main():
+    root = tk.Tk()
+    app = Dziennik_Cisnieniowca_Aplikacja(root)
+    root.mainloop()
+
+main()
