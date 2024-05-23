@@ -16,6 +16,10 @@ TITLE_COLOR = "#fc0fc0"
 class Dziennik_Cisnieniowca_Aplikacja:
     def __init__(self, master):
         self.master = master
+        self.current_file = os.path.join(os.path.expanduser("~"), "Desktop", "pomiary.txt")
+        if not os.path.exists(self.current_file):
+            self.create_initial_file()
+
         # Okno
         self.master.title("Dziennik ciśnieniowca")
         self.master.geometry("800x600")
@@ -34,21 +38,27 @@ class Dziennik_Cisnieniowca_Aplikacja:
         self.add_button.pack(pady=10)
 
         self.search_button = tk.Button(self.main_frame, text="Szukaj pomiaru", command=self.open_search_window,
-                                       font=FONT, bg=BUTTON_COLOR, fg=TEXT_COLOR)
+                                    font=FONT, bg=BUTTON_COLOR, fg=TEXT_COLOR)
         self.search_button.pack(pady=10)
 
         self.change_button = tk.Button(self.main_frame, text="Ścieżka zapisu", command=self.open_change_window,
-                                       font=FONT, bg=BUTTON_COLOR, fg=TEXT_COLOR)
+                                    font=FONT, bg=BUTTON_COLOR, fg=TEXT_COLOR)
         self.change_button.pack(pady=10)
 
         self.chart_button = tk.Button(self.main_frame, text="Wykres pomiarów", command=self.open_chart_window,
-                                      font=FONT, bg=BUTTON_COLOR, fg=TEXT_COLOR)
+                                    font=FONT, bg=BUTTON_COLOR, fg=TEXT_COLOR)
         self.chart_button.pack(pady=10)
 
         self.quit_button = tk.Button(self.main_frame, text="Wyjście", command=self.master.quit,
-                                     font=FONT, bg=BUTTON_COLOR, fg=TEXT_COLOR)
+                                    font=FONT, bg=BUTTON_COLOR, fg=TEXT_COLOR)
         self.quit_button.pack(pady=10)
 
+    def create_initial_file(self):
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        self.current_file = os.path.join(script_dir, "pomiary.txt")
+        with open(self.current_file, "w") as file:
+            file.write("Data; Czas; Ciśnienie skurczowe; Ciśnienie rozkurczowe; Puls\n")
+    
     def open_add_window(self):
         self.add_window = tk.Toplevel(self.master)
         self.add_window.title("Nowy pomiar")
@@ -171,8 +181,15 @@ class Dziennik_Cisnieniowca_Aplikacja:
         self.title_label.pack(pady=30)
 
     def add_measurement(self):
-        # Add the measurement processing logic here
-        pass
+        date = f"{self.year_entry.get()}-{self.month_entry.get()}-{self.day_entry.get()}"
+        time = f"{self.hour_entry.get()}:{self.minute_entry.get()}"
+        pressure1 = self.systolic_entry.get()
+        pressure2 = self.diastolic_entry.get()
+        pulse = self.pulse_entry.get()
+        measurement_data = f"{date}; {time}; {pressure1}; {pressure2}; {pulse}\n"
+        with open(self.current_file, "a") as file:
+            file.write(measurement_data)
+        self.add_window.destroy()
 
 def main():
     root = tk.Tk()
