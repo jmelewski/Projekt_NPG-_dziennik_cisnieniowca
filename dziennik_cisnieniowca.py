@@ -37,6 +37,10 @@ class Dziennik_Cisnieniowca_Aplikacja:
                                     font=FONT, bg=BUTTON_COLOR, fg=TEXT_COLOR)
         self.add_button.pack(pady=10)
 
+        self.view_button = tk.Button(self.main_frame, text="Zapisane pomiary", command=self.open_view_window,
+                                    font=FONT, bg=BUTTON_COLOR, fg=TEXT_COLOR)
+        self.view_button.pack(pady=10)
+
         self.search_button = tk.Button(self.main_frame, text="Szukaj pomiaru", command=self.open_search_window,
                                     font=FONT, bg=BUTTON_COLOR, fg=TEXT_COLOR)
         self.search_button.pack(pady=10)
@@ -147,8 +151,20 @@ class Dziennik_Cisnieniowca_Aplikacja:
                                     font=FONT, bg=BUTTON_COLOR, fg=TEXT_COLOR)
         self.submit_button.pack(pady=20, padx=20, anchor="w")
 
+    #okno historii
+    def open_view_window(self):
+        self.view_window = tk.Toplevel(self.master)
+        self.view_window.title("Zapisane pomiary")
+        self.view_window.geometry("600x400")
+        self.view_window.config(bg=BG_COLOR)
 
+        self.title_label = tk.Label(self.view_window, text="Historia zapisanych pomiarów", font=TITLE_FONT, bg=BG_COLOR, fg=TITLE_COLOR)
+        self.title_label.pack(pady=10)
 
+        self.measurements_text = tk.Text(self.view_window, font=FONT, bg=TEXT_COLOR, fg=BG_COLOR, wrap=tk.WORD)
+        self.measurements_text.pack(pady=10, padx=20, expand=True, fill=tk.BOTH)
+
+        self.display_measurements()
 
     def open_search_window(self):
         self.search_window = tk.Toplevel(self.master)
