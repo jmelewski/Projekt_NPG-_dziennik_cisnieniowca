@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, filedialog
 import csv
 import os
+import pickle
 
 # Czcionka
 FONT = ("Helvetica", 13)
@@ -17,8 +18,13 @@ class Dziennik_Cisnieniowca_Aplikacja:
     def __init__(self, master):
         self.master = master
         self.current_file = os.path.join(os.path.expanduser("~"), "Desktop", "pomiary.txt")
+        self.data_file = os.path.join(os.path.expanduser("~"), "Desktop", "data.pkl")
+        
+        self.measurements = []
         if not os.path.exists(self.current_file):
             self.create_initial_file()
+        
+        self.load_measurements()
 
         # Okno
         self.master.title("Dziennik ciśnieniowca")
@@ -53,16 +59,31 @@ class Dziennik_Cisnieniowca_Aplikacja:
                                     font=FONT, bg=BUTTON_COLOR, fg=TEXT_COLOR)
         self.chart_button.pack(pady=10)
 
-        self.quit_button = tk.Button(self.main_frame, text="Wyjście", command=self.master.quit,
+        self.quit_button = tk.Button(self.main_frame, text="Wyjście", command=self.on_exit,
                                     font=FONT, bg=BUTTON_COLOR, fg=TEXT_COLOR)
         self.quit_button.pack(pady=10)
+
+        self.master.protocol("WM_DELETE_WINDOW", self.on_exit)
 
     def create_initial_file(self):
         script_dir = os.path.dirname(os.path.abspath(__file__))
         self.current_file = os.path.join(script_dir, "pomiary.txt")
         with open(self.current_file, "w") as file:
             file.write("Data; Czas; Ciśnienie skurczowe; Ciśnienie rozkurczowe; Puls\n")
-    
+
+    def save_measurements(self):
+        with open(self.data_file, "wb") as file:
+            pickle.dump(self.measurements, file)
+
+    def load_measurements(self):
+        if os.path.exists(self.data_file):
+            with open(self.data_file, "rb") as file:
+                self.measurements = pickle.load(file)
+
+    def on_exit(self):
+        self.save_measurements()
+        self.master.quit()
+
     def open_add_window(self):
         self.add_window = tk.Toplevel(self.master)
         self.add_window.title("Nowy pomiar")
@@ -159,12 +180,10 @@ class Dziennik_Cisnieniowca_Aplikacja:
         self.view_window.config(bg=BG_COLOR)
 
         self.title_label = tk.Label(self.view_window, text="Historia zapisanych pomiarów", font=TITLE_FONT, bg=BG_COLOR, fg=TITLE_COLOR)
-        self.title_label.pack(pady=10)
+        self.title_label.pack(pady=30)
 
         self.measurements_text = tk.Text(self.view_window, font=FONT, bg=TEXT_COLOR, fg=BG_COLOR, wrap=tk.WORD)
         self.measurements_text.pack(pady=10, padx=20, expand=True, fill=tk.BOTH)
-
-        self.display_measurements()
 
     def open_search_window(self):
         self.search_window = tk.Toplevel(self.master)
@@ -195,6 +214,7 @@ class Dziennik_Cisnieniowca_Aplikacja:
         # Tytuł okna
         self.title_label = tk.Label(self.chart_window, text="Utwórz wykres pomiarów", font=TITLE_FONT, bg=BG_COLOR, fg=TITLE_COLOR)
         self.title_label.pack(pady=30)
+        
 
     def add_measurement(self):
         date = f"{self.year_entry.get()}-{self.month_entry.get()}-{self.day_entry.get()}"
@@ -205,6 +225,7 @@ class Dziennik_Cisnieniowca_Aplikacja:
         measurement_data = f"{date}; {time}; {pressure1}; {pressure2}; {pulse}\n"
         with open(self.current_file, "a") as file:
             file.write(measurement_data)
+        self.measurements.append((date, time, pressure1, pressure2, pulse))
         self.add_window.destroy()
 
 def main():
