@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import messagebox, filedialog
 import csv
 import os
-import pickle
 
 # Czcionka
 FONT = ("Helvetica", 13)
@@ -18,7 +17,6 @@ class Dziennik_Cisnieniowca_Aplikacja:
     def __init__(self, master):
         self.master = master
         self.current_file = os.path.join(os.path.expanduser("~"), "Desktop", "pomiary.txt")
-        self.data_file = os.path.join(os.path.expanduser("~"), "Desktop", "data.pkl")
         
         self.measurements = []
         if not os.path.exists(self.current_file):
@@ -66,19 +64,33 @@ class Dziennik_Cisnieniowca_Aplikacja:
         self.master.protocol("WM_DELETE_WINDOW", self.on_exit)
 
     def create_initial_file(self):
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        self.current_file = os.path.join(script_dir, "pomiary.txt")
         with open(self.current_file, "w") as file:
             file.write("Data; Czas; Ciśnienie skurczowe; Ciśnienie rozkurczowe; Puls\n")
 
     def save_measurements(self):
-        with open(self.data_file, "wb") as file:
-            pickle.dump(self.measurements, file)
+        with open(self.current_file, "w") as file:
+            file.write("Data; Czas; Ciśnienie skurczowe; Ciśnienie rozkurczowe; Puls\n")
+            for measurement in self.measurements:
+                file.write("; ".join(measurement) + "\n")
 
     def load_measurements(self):
-        if os.path.exists(self.data_file):
-            with open(self.data_file, "rb") as file:
-                self.measurements = pickle.load(file)
+        if os.path.exists(self.current_file):
+            with open(self.current_file, "r") as file:
+                reader = csv.reader(file, delimiter=';')
+                next(reader)  
+                self.measurements = [tuple(row) for row in reader]
+
+    def load_measurements_from_file(self):
+        load_path = filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
+        if load_path:
+            self.current_file = load_path
+            with open(self.current_file, "r") as file:
+                reader = csv.reader(file, delimiter=';')
+                next(reader)  
+                self.measurements = [tuple(row) for row in reader]
+            self.save_measurements()
+        else:
+            self.load_measurements()
 
     def on_exit(self):
         self.save_measurements()
@@ -185,6 +197,9 @@ class Dziennik_Cisnieniowca_Aplikacja:
         self.measurements_text = tk.Text(self.view_window, font=FONT, bg=TEXT_COLOR, fg=BG_COLOR, wrap=tk.WORD)
         self.measurements_text.pack(pady=10, padx=20, expand=True, fill=tk.BOTH)
 
+        self.display_measurements()
+
+
     def open_search_window(self):
         self.search_window = tk.Toplevel(self.master)
         self.search_window.title("Szukaj pomiaru")
@@ -214,6 +229,13 @@ class Dziennik_Cisnieniowca_Aplikacja:
         # Tytuł okna
         self.title_label = tk.Label(self.chart_window, text="Utwórz wykres pomiarów", font=TITLE_FONT, bg=BG_COLOR, fg=TITLE_COLOR)
         self.title_label.pack(pady=30)
+
+    def display_measurements(self):
+        self.measurements_text.delete(1.0, tk.END)
+        for measurement in self.measurements:
+            date, time, pressure1, pressure2, pulse = measurement
+            self.measurements_text.insert(tk.END, f"Data: {date}\nCzas: {time}\nCiśnienie skurczowe: {pressure1} mmHg\nCiśnienie rozkurczowe: {pressure2} mmHg\nPuls: {pulse} BPM\n\n")
+        self.measurements_text.config(state=tk.DISABLED)
         
 
     def add_measurement(self):
