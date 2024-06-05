@@ -221,10 +221,10 @@ class Dziennik_Cisnieniowca_Aplikacja:
         self.display_measurements()
 
     # Open the window to search for a specific measurement
-    def open_search_window(self):
+        def open_search_window(self):
         self.search_window = tk.Toplevel(self.master)
         self.search_window.title("Szukaj pomiaru")
-        self.search_window.geometry("600x400")
+        self.search_window.geometry("600x800")
         self.search_window.config(bg=BG_COLOR)
 
         self.title_label = tk.Label(self.search_window, text="Wyszukaj pomiar", font=TITLE_FONT, bg=BG_COLOR,
@@ -251,9 +251,41 @@ class Dziennik_Cisnieniowca_Aplikacja:
         self.search_time_entry = tk.Entry(search_time_frame, font=FONT, width=10)
         self.search_time_entry.pack(side="left", padx=(0, 5))
 
+        # Systolic pressure entry fields for search
+        search_systolic_frame = tk.Frame(self.search_window, bg=BG_COLOR)
+        search_systolic_frame.pack(pady=5, padx=20, anchor="w")
+
+        self.search_systolic_label = tk.Label(search_systolic_frame, text="Ciśnienie skurczowe (mmHg):", font=FONT,
+                                              bg=BG_COLOR)
+        self.search_systolic_label.pack(side="left", padx=(0, 5))
+
+        self.search_systolic_entry = tk.Entry(search_systolic_frame, font=FONT, width=10)
+        self.search_systolic_entry.pack(side="left", padx=(0, 5))
+
+        # Diastolic pressure entry fields for search
+        search_diastolic_frame = tk.Frame(self.search_window, bg=BG_COLOR)
+        search_diastolic_frame.pack(pady=5, padx=20, anchor="w")
+
+        self.search_diastolic_label = tk.Label(search_diastolic_frame, text="Ciśnienie rozkurczowe (mmHg):", font=FONT,
+                                               bg=BG_COLOR)
+        self.search_diastolic_label.pack(side="left", padx=(0, 5))
+
+        self.search_diastolic_entry = tk.Entry(search_diastolic_frame, font=FONT, width=10)
+        self.search_diastolic_entry.pack(side="left", padx=(0, 5))
+
+        # Pulse entry fields for search
+        search_pulse_frame = tk.Frame(self.search_window, bg=BG_COLOR)
+        search_pulse_frame.pack(pady=5, padx=20, anchor="w")
+
+        self.search_pulse_label = tk.Label(search_pulse_frame, text="Puls (BPM):", font=FONT, bg=BG_COLOR)
+        self.search_pulse_label.pack(side="left", padx=(0, 5))
+
+        self.search_pulse_entry = tk.Entry(search_pulse_frame, font=FONT, width=10)
+        self.search_pulse_entry.pack(side="left", padx=(0, 5))
+
         # Search button
-        self.search_button = tk.Button(self.search_window, text="Szukaj", command=self.search_measurements,
-                                       font=FONT, bg=BUTTON_COLOR, fg=TEXT_COLOR)
+        self.search_button = tk.Button(self.search_window, text="Szukaj", command=self.search_measurements, font=FONT,
+                                       bg=BUTTON_COLOR, fg=TEXT_COLOR)
         self.search_button.pack(pady=20, padx=20)
 
         # Text widget to display search results
@@ -261,22 +293,31 @@ class Dziennik_Cisnieniowca_Aplikacja:
         self.search_results_text.pack(pady=10, padx=20, expand=True, fill=tk.BOTH)
 
     def search_measurements(self):
-        search_date = self.search_date_entry.get()
-        search_time = self.search_time_entry.get()
+        search_date = self.search_date_entry.get().strip()
+        search_time = self.search_time_entry.get().strip()
+        search_systolic = self.search_systolic_entry.get().strip()
+        search_diastolic = self.search_diastolic_entry.get().strip()
+        search_pulse = self.search_pulse_entry.get().strip()
 
         results = []
         for measurement in self.measurements:
-            date, time, pressure1, pressure2, pulse = measurement
-            if (not search_date or search_date in date) and (not search_time or search_time in time):
+            date, time, systolic, diastolic, pulse = measurement
+            match_date = not search_date or search_date in date
+            match_time = not search_time or search_time in time
+            match_systolic = not search_systolic or search_systolic == str(systolic)
+            match_diastolic = not search_diastolic or search_diastolic == str(diastolic)
+            match_pulse = not search_pulse or search_pulse == str(pulse)
+
+            if match_date and match_time and match_systolic and match_diastolic and match_pulse:
                 results.append(measurement)
 
         self.search_results_text.config(state=tk.NORMAL)
         self.search_results_text.delete(1.0, tk.END)
         if results:
             for result in results:
-                date, time, pressure1, pressure2, pulse = result
+                date, time, systolic, diastolic, pulse = result
                 self.search_results_text.insert(tk.END,
-                                                f"Data: {date}\t\tCzas: {time}\nCiśnienie skurczowe:  {pressure1} mmHg\nCiśnienie rozkurczowe:  {pressure2} mmHg\nPuls:  {pulse} BPM\n\n")
+                                                f"Data: {date}\t\tCzas: {time}\nCiśnienie skurczowe:  {systolic} mmHg\nCiśnienie rozkurczowe:  {diastolic} mmHg\nPuls:  {pulse} BPM\n\n")
         else:
             self.search_results_text.insert(tk.END, "Nie znaleziono pomiarów dla podanych kryteriów.")
         self.search_results_text.config(state=tk.DISABLED)
