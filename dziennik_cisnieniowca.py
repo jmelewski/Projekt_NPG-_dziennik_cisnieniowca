@@ -204,9 +204,19 @@ class Dziennik_Cisnieniowca_Aplikacja:
                                     fg=TITLE_COLOR)
         self.title_label.pack(pady=30)
 
+        #Frame for text and scrollbar
+        self.text_frame = tk.Frame(self.view_window, bg=BG_COLOR)
+        self.text_frame.pack(pady=10, padx=20, expand=True, fill=tk.BOTH)
+
+        #Scrollbar
+        self.scrollbar = tk.Scrollbar(self.text_frame)
+        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
         # Text widget to display measurements
-        self.measurements_text = tk.Text(self.view_window, font=FONT, bg=TEXT_COLOR, fg=BUTTON_COLOR, wrap=tk.WORD)
+        self.measurements_text = tk.Text(self.text_frame, font=FONT, bg=TEXT_COLOR, fg=BUTTON_COLOR, wrap=tk.WORD, yscrollcommand=self.scrollbar.set)
         self.measurements_text.pack(pady=10, padx=20, expand=True, fill=tk.BOTH)
+
+        self.scrollbar.config(command=self.measurements_text.yview)
 
         self.display_measurements()
 
