@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, filedialog
 import csv
 import os
+import datetime
 
 # Font settings
 FONT = ("Helvetica", 16)
@@ -122,17 +123,19 @@ class Dziennik_Cisnieniowca_Aplikacja:
         self.date_label = tk.Label(date_frame, text="Data:", font=FONT, bg=BG_COLOR)
         self.date_label.pack(side="left", padx=(0, 5))
 
+        now = datetime.datetime.now()
+        
         self.year_entry = tk.Entry(date_frame, font=FONT, width=5)
         self.year_entry.pack(side="left", padx=(0, 5))
-        self.year_entry.insert(0, "RRRR")
+        self.year_entry.insert(0, now.strftime("%Y"))
 
         self.month_entry = tk.Entry(date_frame, font=FONT, width=3)
         self.month_entry.pack(side="left", padx=(0, 5))
-        self.month_entry.insert(0, "MM")
+        self.month_entry.insert(0, now.strftime("%m"))
 
         self.day_entry = tk.Entry(date_frame, font=FONT, width=3)
         self.day_entry.pack(side="left", padx=(0, 5))
-        self.day_entry.insert(0, "DD")
+        self.day_entry.insert(0, now.strftime("%d"))
 
         # Time entry fields
         time_frame = tk.Frame(self.add_window, bg=BG_COLOR)
@@ -143,14 +146,14 @@ class Dziennik_Cisnieniowca_Aplikacja:
 
         self.hour_entry = tk.Entry(time_frame, font=FONT, width=3)
         self.hour_entry.pack(side="left", padx=(0, 0))
-        self.hour_entry.insert(0, "GG")
+        self.hour_entry.insert(0, now.strftime("%H"))
 
         self.colon_label = tk.Label(time_frame, text=":", font=FONT, bg=BG_COLOR)
         self.colon_label.pack(side="left")
 
         self.minute_entry = tk.Entry(time_frame, font=FONT, width=3)
         self.minute_entry.pack(side="left", padx=(0, 5))
-        self.minute_entry.insert(0, "MM")
+        self.minute_entry.insert(0, now.strftime("%M"))
 
         # Systolic pressure entry fields
         pressure1_frame = tk.Frame(self.add_window, bg=BG_COLOR)
@@ -221,7 +224,7 @@ class Dziennik_Cisnieniowca_Aplikacja:
         self.display_measurements()
 
     # Open the window to search for a specific measurement
-        def open_search_window(self):
+    def open_search_window(self):
         self.search_window = tk.Toplevel(self.master)
         self.search_window.title("Szukaj pomiaru")
         self.search_window.geometry("600x800")
