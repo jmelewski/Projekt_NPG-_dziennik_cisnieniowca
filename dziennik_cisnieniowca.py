@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox, filedialog
+from tkinter import messagebox, filedialog, Canvas
 import csv
 import os
 import datetime
@@ -366,10 +366,84 @@ class Dziennik_Cisnieniowca_Aplikacja:
         self.chart_window.geometry("800x600")
         self.chart_window.config(bg=BG_COLOR)
 
-        self.title_label = tk.Label(self.chart_window, text="Utwórz wykres pomiarów", font=TITLE_FONT, bg=BG_COLOR,
-                                    fg=TITLE_COLOR)
-        self.title_label.pack(pady=30)
+        self.chart_canvas = Canvas(self.chart_window, bg=BG_COLOR)
+        self.chart_canvas.pack(expand=True, fill="both")
 
+        # Extract systolic and diastolic measurements
+        dates = [measurement[0] for measurement in self.measurements]
+        systolic_values = [int(measurement[2]) for measurement in self.measurements]
+        diastolic_values = [int(measurement[3]) for measurement in self.measurements]
+
+        # Default date range
+        self.start_date = tk.StringVar(value=dates[0])
+        self.end_date = tk.StringVar(value=dates[-1])
+
+        def update_chart(*args):
+            self.chart_canvas.delete("all")
+
+            start_index = dates.index(self.start_date.get())
+            end_index = dates.index(self.end_date.get()) + 1
+
+            dates_to_show = dates[start_index:end_index]
+            systolic_to_show = systolic_values[start_index:end_index]
+            diastolic_to_show = diastolic_values[start_index:end_index]
+
+            # Chart properties
+            max_systolic = max(systolic_to_show, default=0)
+            max_diastolic = max(diastolic_to_show, default=0)
+            max_value = max(max_systolic, max_diastolic)
+
+            canvas_width = 760
+            canvas_height = 300
+            margin = 20
+
+            num_points = len(dates_to_show)
+            x_step = (canvas_width - 2 * margin) / max(1, num_points - 1)
+            y_step = (canvas_height - 2 * margin) / max(1, max_value)
+
+            # Draw systolic line
+            for i in range(num_points - 1):
+                x1 = margin + i * x_step
+                y1 = canvas_height - margin - systolic_to_show[i] * y_step
+                x2 = margin + (i + 1) * x_step
+                y2 = canvas_height - margin - systolic_to_show[i + 1] * y_step
+                self.chart_canvas.create_line(x1, y1, x2, y2, fill="red", width=2)
+
+            # Draw diastolic line
+            for i in range(num_points - 1):
+                x1 = margin + i * x_step
+                y1 = canvas_height - margin - diastolic_to_show[i] * y_step
+                x2 = margin + (i + 1) * x_step
+                y2 = canvas_height - margin - diastolic_to_show[i + 1] * y_step
+                self.chart_canvas.create_line(x1, y1, x2, y2, fill="blue", width=2)
+
+        # Add date range selection widgets
+        self.date_frame = tk.Frame(self.chart_window, bg=BG_COLOR)
+        self.date_frame.pack(pady=10)
+
+        self.start_date_label = tk.Label(self.date_frame, text="Początek:", font=FONT, bg=BG_COLOR, fg=TITLE_COLOR)
+        self.start_date_label.pack(side=tk.LEFT, padx=5)
+        self.start_date_entry = tk.Entry(self.date_frame, textvariable=self.start_date, font=FONT, bg=BG_COLOR,
+                                         fg=TITLE_COLOR)
+        self.start_date_entry.pack(side=tk.LEFT, padx=5)
+
+        self.end_date_label = tk.Label(self.date_frame, text="Koniec:", font=FONT, bg=BG_COLOR, fg=TITLE_COLOR)
+        self.end_date_label.pack(side=tk.LEFT, padx=5)
+        self.end_date_entry = tk.Entry(self.date_frame, textvariable=self.end_date, font=FONT, bg=BG_COLOR,
+                                       fg=TITLE_COLOR)
+        self.end_date_entry.pack(side=tk.LEFT, padx=5)
+
+        self.update_button = tk.Button(self.date_frame, text="Aktualizuj", command=update_chart, font=FONT,
+                                       bg=BUTTON_COLOR, fg=TEXT_COLOR)
+        self.update_button.pack(side=tk.LEFT, padx=5)
+
+        # Initial chart drawing
+        update_chart()
+
+        # Close button
+        self.chart_quit_button = tk.Button(self.chart_window, text="Zamknij", command=self.chart_window.destroy,
+                                           font=FONT, bg=BUTTON_COLOR, fg=TEXT_COLOR)
+        self.chart_quit_button.pack(pady=10)
     # Display all saved measurements in the text widget
     def display_measurements(self):
         self.measurements_text.delete(1.0, tk.END)
