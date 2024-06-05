@@ -282,29 +282,34 @@ class Dziennik_Cisnieniowca_Aplikacja:
         pressure1 = self.systolic_entry.get()
         pressure2 = self.diastolic_entry.get()
         pulse = self.pulse_entry.get()
-        self.check_levels(pressure1, pressure2, pulse)
-        measurement_data = f"{date}; {time}; {pressure1}; {pressure2}; {pulse}\n"
-        with open(self.current_file, "a") as file:
-            file.write(measurement_data)
-        self.measurements.append((date, time, pressure1, pressure2, pulse))
+        if self.check_levels(pressure1, pressure2, pulse):
+            measurement_data = f"{date}; {time}; {pressure1}; {pressure2}; {pulse}\n"
+            with open(self.current_file, "a") as file:
+                file.write(measurement_data)
+            self.measurements.append((date, time, pressure1, pressure2, pulse))
         self.add_window.destroy()
 
     def check_levels(self, systolic, diastolic, pulse):
-        systolic = int(systolic)
-        diastolic = int(diastolic)
-        pulse = int(pulse)
-        if (systolic > 140 or diastolic > 90) and pulse > 100:
-            messagebox.showwarning("Ostrzeżenie", "Uwaga - podwyższone ciśnienie oraz puls.")
-        elif (systolic < 120 or diastolic < 80) and pulse < 60: 
-            messagebox.showwarning("Ostrzeżenie", "Uwaga - zaniżone ciśnienie oraz puls.")
-        elif systolic > 140 or diastolic > 90:
-            messagebox.showwarning("Ostrzeżenie", "Uwaga - podwyższone ciśnienie.")
-        elif systolic < 120 or diastolic < 80:
-            messagebox.showwarning("Ostrzeżenie", "Uwaga - zaniżone ciśnienie.")
-        elif pulse > 100:
-            messagebox.showwarning("Ostrzeżenie", "Uwaga - podwyższony puls.")
-        elif pulse < 60:
-            messagebox.showwarning("Ostrzeżenie", "Uwaga - zaniżony puls.")
+        try:
+            systolic = int(systolic)
+            diastolic = int(diastolic)
+            pulse = int(pulse)
+            if (systolic > 140 or diastolic > 90) and pulse > 100:
+                messagebox.showwarning("Ostrzeżenie", "Uwaga - podwyższone ciśnienie oraz puls!")
+            elif (systolic < 120 or diastolic < 80) and pulse < 60: 
+                messagebox.showwarning("Ostrzeżenie", "Uwaga - zaniżone ciśnienie oraz puls!")
+            elif systolic > 140 or diastolic > 90:
+                messagebox.showwarning("Ostrzeżenie", "Uwaga - podwyższone ciśnienie!")
+            elif systolic < 120 or diastolic < 80:
+                messagebox.showwarning("Ostrzeżenie", "Uwaga - zaniżone ciśnienie!")
+            elif pulse > 100:
+                messagebox.showwarning("Ostrzeżenie", "Uwaga - podwyższony puls!")
+            elif pulse < 60:
+                messagebox.showwarning("Ostrzeżenie", "Uwaga - zaniżony puls!")
+            return True
+        except ValueError:
+            messagebox.showerror("Błąd", "Wpisano błędne wartości ciśnienia")
+            return False
 
 
 # Main function to run the application
