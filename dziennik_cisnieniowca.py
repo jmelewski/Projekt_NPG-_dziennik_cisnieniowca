@@ -231,6 +231,56 @@ class Dziennik_Cisnieniowca_Aplikacja:
                                     fg=TITLE_COLOR)
         self.title_label.pack(pady=30)
 
+        # Date entry fields for search
+        search_date_frame = tk.Frame(self.search_window, bg=BG_COLOR)
+        search_date_frame.pack(pady=5, padx=20, anchor="w")
+
+        self.search_date_label = tk.Label(search_date_frame, text="Data (np. RRRR-MM-DD):", font=FONT, bg=BG_COLOR)
+        self.search_date_label.pack(side="left", padx=(0, 5))
+
+        self.search_date_entry = tk.Entry(search_date_frame, font=FONT, width=15)
+        self.search_date_entry.pack(side="left", padx=(0, 5))
+
+        # Time entry fields for search
+        search_time_frame = tk.Frame(self.search_window, bg=BG_COLOR)
+        search_time_frame.pack(pady=5, padx=20, anchor="w")
+
+        self.search_time_label = tk.Label(search_time_frame, text="Czas (np. GG:MM):", font=FONT, bg=BG_COLOR)
+        self.search_time_label.pack(side="left", padx=(0, 5))
+
+        self.search_time_entry = tk.Entry(search_time_frame, font=FONT, width=10)
+        self.search_time_entry.pack(side="left", padx=(0, 5))
+
+        # Search button
+        self.search_button = tk.Button(self.search_window, text="Szukaj", command=self.search_measurements,
+                                       font=FONT, bg=BUTTON_COLOR, fg=TEXT_COLOR)
+        self.search_button.pack(pady=20, padx=20)
+
+        # Text widget to display search results
+        self.search_results_text = tk.Text(self.search_window, font=FONT, bg=TEXT_COLOR, fg=BUTTON_COLOR, wrap=tk.WORD)
+        self.search_results_text.pack(pady=10, padx=20, expand=True, fill=tk.BOTH)
+
+    def search_measurements(self):
+        search_date = self.search_date_entry.get()
+        search_time = self.search_time_entry.get()
+
+        results = []
+        for measurement in self.measurements:
+            date, time, pressure1, pressure2, pulse = measurement
+            if (not search_date or search_date in date) and (not search_time or search_time in time):
+                results.append(measurement)
+
+        self.search_results_text.config(state=tk.NORMAL)
+        self.search_results_text.delete(1.0, tk.END)
+        if results:
+            for result in results:
+                date, time, pressure1, pressure2, pulse = result
+                self.search_results_text.insert(tk.END,
+                                                f"Data: {date}\t\tCzas: {time}\nCiśnienie skurczowe:  {pressure1} mmHg\nCiśnienie rozkurczowe:  {pressure2} mmHg\nPuls:  {pulse} BPM\n\n")
+        else:
+            self.search_results_text.insert(tk.END, "Nie znaleziono pomiarów dla podanych kryteriów.")
+        self.search_results_text.config(state=tk.DISABLED)
+
     # Open the window to change the save path
     def open_change_window(self):
         self.change_window = tk.Toplevel(self.master)
