@@ -474,11 +474,11 @@ class Dziennik_Cisnieniowca_Aplikacja:
             pulse = int(pulse)
             if (systolic > 140 or diastolic > 90) and pulse > 100:
                 messagebox.showwarning("Ostrzeżenie", "Uwaga - podwyższone ciśnienie oraz puls!")
-            elif (systolic < 120 or diastolic < 80) and pulse < 60: 
+            elif (systolic < 90 or diastolic < 60) and pulse < 60: 
                 messagebox.showwarning("Ostrzeżenie", "Uwaga - zaniżone ciśnienie oraz puls!")
             elif systolic > 140 or diastolic > 90:
                 messagebox.showwarning("Ostrzeżenie", "Uwaga - podwyższone ciśnienie!")
-            elif systolic < 120 or diastolic < 80:
+            elif systolic < 90 or diastolic < 60:
                 messagebox.showwarning("Ostrzeżenie", "Uwaga - zaniżone ciśnienie!")
             elif pulse > 100:
                 messagebox.showwarning("Ostrzeżenie", "Uwaga - podwyższony puls!")
